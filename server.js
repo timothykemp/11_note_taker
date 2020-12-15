@@ -1,7 +1,7 @@
 const express = require("express");
 const path = require("path");
 const fs = require("fs");
-const { ifError } = require("assert");
+const { v4: uuidv4 } = require('uuid');
 
 // Sets up the Express App
 // =============================================================
@@ -22,7 +22,6 @@ app.get("/notes", function (req, res) {
 app.get("/api/notes", function (req, res) {
     fs.readFile("./db/db.json", "utf8", function (err, notes) {
         if (err) throw err;
-        console.log(notes);
         res.json(JSON.parse(notes));
     });
 
@@ -35,22 +34,36 @@ app.post("/api/notes", function (req, res) {
         console.log('req.body :>> ', req.body);
         const jsonNotes = JSON.parse(notes);
 
+        req.body.id = uuidv4();
+
         jsonNotes.push(req.body);
         fs.writeFile("./db/db.json", JSON.stringify(jsonNotes), function (err) {
             if (err) throw err;
-            res.json(jsonNotes) // this is not correct yet
+            res.json(jsonNotes)
         });
     })
 })
+
+app.delete("/api/notes/:id", function (req, res) {
+    const id = req.params.id;
+
+    fs.readFile("./db/db.json", "utf8", function (err, notes) {
+        if (err) throw err;
+
+        const jsonNotes = JSON.parse(notes);
+
+        const updatedNotes = jsonNotes.filter(element => element.id !== id)
+
+        fs.writeFile("./db/db.json", JSON.stringify(updatedNotes), function (err) {
+            if (err) throw err;
+            res.json(updatedNotes)
+        });
+    });
+})
+
 app.get("*", function (req, res) {
     res.sendFile(path.join(__dirname, "./public/index.html"));
 });
-
-
-
-
-// Test comment
-
 
 app.listen(PORT, function () {
     console.log("App listening on PORT " + PORT);
