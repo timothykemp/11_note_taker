@@ -1,18 +1,17 @@
+//Required utilities
 const express = require("express");
 const path = require("path");
 const fs = require("fs");
-const { v4: uuidv4 } = require('uuid');
+const { v4: uuidv4 } = require('uuid'); // Used for IDs on Notes
 
 // Sets up the Express App
-// =============================================================
-var app = express();
-var PORT = 3000;
+const app = express();
+const PORT = process.env.PORT || 3001;
 
 // Sets up the Express app to handle data parsing
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static('public'));
-
 
 // Routes
 app.get("/notes", function (req, res) {
@@ -31,7 +30,6 @@ app.post("/api/notes", function (req, res) {
     fs.readFile("./db/db.json", "utf8", function (err, notes) {
         if (err) throw err;
 
-        console.log('req.body :>> ', req.body);
         const jsonNotes = JSON.parse(notes);
 
         req.body.id = uuidv4();
