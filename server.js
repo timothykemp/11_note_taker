@@ -14,56 +14,58 @@ app.use(express.json());
 app.use(express.static('public'));
 
 // Routes
-app.get("/notes", function (req, res) {
-    res.sendFile(path.join(__dirname, "./public/notes.html"));
-});
+//=======================
 
-app.get("/api/notes", function (req, res) {
-    fs.readFile("./db/db.json", "utf8", function (err, notes) {
+// Return notes.html
+app.get("/notes", (req, res) =>
+    res.sendFile(path.join(__dirname, "./public/notes.html")));
+
+// Return all saved notes as json
+app.get("/api/notes", (req, res) => {
+    fs.readFile("./db/db.json", "utf8", (err, notes) => {
         if (err) throw err;
         res.json(JSON.parse(notes));
     });
-
 });
 
-app.post("/api/notes", function (req, res) {
-    fs.readFile("./db/db.json", "utf8", function (err, notes) {
+// Receive new note, save to request body, add to json file, return new note
+app.post("/api/notes", (req, res) => {
+    fs.readFile("./db/db.json", "utf8", (err, notes) => {
         if (err) throw err;
 
         const jsonNotes = JSON.parse(notes);
 
         req.body.id = uuidv4();
-
         jsonNotes.push(req.body);
-        fs.writeFile("./db/db.json", JSON.stringify(jsonNotes), function (err) {
+
+        fs.writeFile("./db/db.json", JSON.stringify(jsonNotes), (err) => {
             if (err) throw err;
             res.json(jsonNotes)
         });
     })
 })
 
-app.delete("/api/notes/:id", function (req, res) {
+// Delete selected note by ID from json, rewrite json file
+app.delete("/api/notes/:id", (req, res) => {
     const id = req.params.id;
 
-    fs.readFile("./db/db.json", "utf8", function (err, notes) {
+    fs.readFile("./db/db.json", "utf8", (err, notes) => {
         if (err) throw err;
 
         const jsonNotes = JSON.parse(notes);
-
         const updatedNotes = jsonNotes.filter(element => element.id !== id)
 
-        fs.writeFile("./db/db.json", JSON.stringify(updatedNotes), function (err) {
+        fs.writeFile("./db/db.json", JSON.stringify(updatedNotes), (err) => {
             if (err) throw err;
             res.json(updatedNotes)
         });
     });
 })
 
-app.get("*", function (req, res) {
-    res.sendFile(path.join(__dirname, "./public/index.html"));
-});
+// Return index.html for any other path
+app.get("*", (req, res) =>
+    res.sendFile(path.join(__dirname, "./public/index.html")));
 
-app.listen(PORT, function () {
-    console.log("App listening on PORT " + PORT);
-});
+// Server listener
+app.listen(PORT, () => console.log("App listening on PORT " + PORT));
 
