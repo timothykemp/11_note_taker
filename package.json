@@ -4,7 +4,9 @@
   "description": "A simple app that allows user to create, save, and delete notes",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js",
+    "watch": "nodemon server.js"
   },
   "author": "Timothy Kemp",
   "license": "ISC",
